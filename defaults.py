@@ -109,7 +109,46 @@ def load_default(inter):
     elif isinstance(a,bool) and isinstance(b,bool):
       return a == b
     else:
-      raise WrongArgument("Add a==b not with int,int nor bool,bool",inter.ctx.get_path())
+      raise WrongArgument("a==b not with int,int nor bool,bool",inter.ctx.get_path())
+  
+  def or_(a,b):
+    a = inter.force(a)
+    b = inter.force(b)
+    if isinstance(a,bool) and isinstance(b,bool):
+      return a or b
+    else:
+      raise WrongArgument("Or a b not with bool,bool",inter.ctx.get_path())
+    
+  def and_(a,b):
+    a = inter.force(a)
+    b = inter.force(b)
+    if isinstance(a,bool) and isinstance(b,bool):
+      return a and b
+    else:
+      raise WrongArgument("And a b not with bool,bool",inter.ctx.get_path())
+  
+  def not_(a):
+    a = inter.force(a)
+    if isinstance(a,bool):
+      return a
+    else:
+      raise WrongArgument("(not a) not with bool",inter.ctx.get_path())
+  
+  def div_(a,b):
+    a = inter.force(a)
+    b = inter.force(b)
+    if isinstance(a,int) and isinstance(b,int):
+      return int(a / b)
+    else:
+      raise WrongArgument("div a b not with int,int",inter.ctx.get_path())
+  
+  def mod_(a,b):
+    a = inter.force(a)
+    b = inter.force(b)
+    if isinstance(a,int) and isinstance(b,int):
+      return a % b
+    else:
+      raise WrongArgument("mod a b not with int,int",inter.ctx.get_path())
   
   
 
@@ -119,6 +158,11 @@ def load_default(inter):
     "mul":lambda a:lambda b: mul(a,b),
     "if":lambda cnd:lambda a:lambda b: if_(cnd,a,b),
     "eq":lambda a:lambda b: eq(a,b),
+    "or":lambda a:lambda b: or_(a,b),
+    "and":lambda a:lambda b: and_(a,b),
+    "not":lambda a: not_(a),
+    "div":lambda a:lambda b: div_(a,b),
+    "mod":lambda a:lambda b: mod_(a,b),
     "false":False,
     "true":True,
   }
@@ -130,12 +174,13 @@ def load_default(inter):
       #(">","gt"),
       #("<=","le"),
       #("<","ls"),
-      #("&&","and"),
-      #("||","or"),
-      #("!","not"),
+      ("&&","and"),
+      ("||","or"),
+      ("!","not"),
       ("+","add"),
       ("-","sub"),
-      #("/","div"),
+      ("/","div"),
+      ("%","mod"),
       ("*","mul"),
     ]:
     DEFAULT_VALS[k] = DEFAULT_VALS[v_]

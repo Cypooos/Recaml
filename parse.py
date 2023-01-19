@@ -25,7 +25,7 @@ class Parser:
 
   def __init__(self):
     self.ctx = Context()
-    self.inter = Interpretor(self.ctx)
+    self.inter = Interpretor(self.ctx,self)
 
   def parse(self,string):
     #self.ctx.act_path = []

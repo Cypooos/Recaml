@@ -34,10 +34,12 @@ class Context:
     self.vars[self.get_path()] = ele
   
   def defi(self,name,ele):
+    print("  "*self.indent+"[C] Setting `"+name+"` as `"+str(ele)+"`")
     if self.get_path() == "":self.vars[name] = ele
     else: self.vars[self.get_path()+"."+name] = ele
 
   def rem(self,name):
+    print("  "*self.indent+"[C] Removing `"+name+"`")
     try:
       if self.get_path() == "":del self.vars[name]
       else: del self.vars[self.get_path()+"."+name]
@@ -46,7 +48,7 @@ class Context:
 
   def get(self,string,no_err=False):
     
-    print("  "*self.indent+"Searching for",string,"in",self.get_path())
+    print("  "*self.indent+"[C] Searching for",string,"in",self.get_path())
 
     # list of path to search for in order (from more specific to less specific)
     
@@ -57,16 +59,16 @@ class Context:
 
     for path in search_paths:
       if path+string in self.vars.keys():
-        print("  "*self.indent+"Found",path+string,":",self.vars[path+string])
+        print("  "*self.indent+"[C] Found",path+string,":",self.vars[path+string])
 
         return self.vars[path+string]
     
     if no_err:
-      print("  "*self.indent+"Not found, returning None as no_err is set")
+      print("  "*self.indent+"[C] Not found, returning None as no_err is set")
       return None
     try:
       a = int(string)
-      print("  "*self.indent+"Found litteral:",a)
+      print("  "*self.indent+"[C] Found litteral:",a)
       return a
     except ValueError:
         

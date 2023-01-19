@@ -1,11 +1,12 @@
 from errors import *
 from context import Context
+#from parse import Parser
 from utils import find_next_brackets
 from defaults import *
 
 class Interpretor:
 
-  STACK_LIMIT = 10
+  STACK_LIMIT = 20
 
   STATE_NORMAL = 0
   STATE_LINK = 1
@@ -25,14 +26,15 @@ class Interpretor:
       return self.force(self.exec(x,None))
     else: return x
 
-  def __init__(self,ctx:Context):
+  def __init__(self,ctx:Context,parser):
     self.ctx = ctx
+    self.parser = parser
     self.ctx.vars = load_default(self)
   
   # exec(a,b) calculate a(b)
   def exec(self,res,val):
 
-    print("  "*self.ctx.indent+"Executing "+str(res)+"("+str(val)+")")
+    print("  "*self.ctx.indent+"[I] Executing "+str(res)+"("+str(val)+")")
     
     if callable(res):
       return res(val)
@@ -44,7 +46,7 @@ class Interpretor:
       self.ctx.goto(res.def_path)
 
       # on créé les variables temporaire de contexte nécéssaire :
-      print("  "*self.ctx.indent+"Creating temporary variables (Process)")
+      print("  "*self.ctx.indent+"[I] Creating temporary variables (Process)")
       to_del = []
       for (key,value) in res.temp_var:
         if isinstance(value,Process):
@@ -67,17 +69,24 @@ class Interpretor:
       self.ctx.goto(path_save)
       res = returned
     
-    if val == None:
+    if val == None: # this way you can use result = self.exec(process,None) to evaluate a process
       return res
     
     if isinstance(res,Function):
-      
+
+      # In case of custom functions, always call res if it's a Process before.
+      # Otherwise, fact (sub a 1) will load fact witch will load fact... without calculating (sub a 1) since it's a Process
+      # Also known as in (a + c()), we calculate the c() before calculating a + result
+      while isinstance(val,Process):
+        print("  "*self.ctx.indent+"[I] Function Called with Process, calculating process.")
+        val = self.exec(val,None)
+
       # On ce met dans le contexte de définition de la fonction pour l'executer
       path_save = self.ctx.act_path.copy()
       self.ctx.goto(res.def_path)
 
       # on créé les variables temporaire de contexte nécéssaire :
-      print("  "*self.ctx.indent+"Creating temporary variables (Function)")
+      print("  "*self.ctx.indent+"[I] Creating temporary variables (Function)")
       to_del = []
       for (key,value) in res.temp_var:
         if isinstance(value,Process):
@@ -87,7 +96,7 @@ class Interpretor:
       for (key,value) in res.temp_var:
         self.ctx.defi(key,value)
       self.ctx.defi(res.variable,val)
-      print("  "*self.ctx.indent+"Temporary variables: to_del =",to_del)
+      print("  "*self.ctx.indent+"[I] Temporary variables: to_del =",to_del)
 
       returned = self.evaluate(res.code)
 
@@ -157,12 +166,12 @@ class Interpretor:
           buffer = ""
 
           self.ctx.append("INNER")
-          print("  "*self.ctx.indent,"Executing block in ctx:",".".join(self.path))
+          print("  "*self.ctx.indent,"[I] Executing block in ctx `"+self.ctx.get_path()+"`")
 
           place = find_next_brackets(string[i:],"{","}")
           if place != 0:
-            self.parse(string[i+1:i+place])
-            del self.path[-1]
+            self.parser.parse(string[i+1:i+place])
+            self.ctx.back()
             result = self.exec(result,self.ctx.get("INNER"))
             i += place
           else:
@@ -178,7 +187,7 @@ class Interpretor:
         
         # beginning of creating a fonction, also an end of the current fetching 
         elif char == Interpretor.SPECIAL["FUNCTION_DEF"]:
-          print("  "*self.ctx.indent + "Fetching linkable variables...")
+          print("  "*self.ctx.indent + "[I] Fetching linkable variables...")
           
           # evaluate the buffer
           buffer = buffer.strip()
@@ -198,11 +207,11 @@ class Interpretor:
 
         # end of the fetching for the variable's name
         if char == "(":
-          print("  "*self.ctx.indent + "End of fetching variable for fct:`"+buffer+"`")
+          print("  "*self.ctx.indent + "[I] End of fetching variable for fct:`"+buffer+"`")
 
           place = find_next_brackets(string[i:],"(",")")
           if place != 0:
-            print("  "*self.ctx.indent + "Applying custom fct to result (execute)")
+            print("  "*self.ctx.indent + "[I] Applying custom fct to result (execute)")
             fct = Function(buffer,string[i+1:i+place],[],self.ctx.get_path())
             result = self.exec(result,fct)
             buffer = ""
@@ -211,11 +220,11 @@ class Interpretor:
           else:
             raise UnclosedBrackets
         elif char == "{":
-          print("  "*self.ctx.indent + "End of fetching variable for block:`"+buffer+"`")
+          print("  "*self.ctx.indent + "[I] End of fetching variable for block:`"+buffer+"`")
 
           place = find_next_brackets(string[i:],"{","}")
           if place != 0:
-            print("  "*self.ctx.indent + "Applying custom fct to result (execute)")
+            print("  "*self.ctx.indent + "[I] Applying custom fct to result (execute)")
             fct = Function(buffer,string[i:i+place+1],[],self.ctx.get_path())
             result = self.exec(result,fct)
             buffer = ""
@@ -235,10 +244,10 @@ class Interpretor:
 
     # if only Process is left, executing it.
     while isinstance(result,Process):
-      print("  "*self.ctx.indent+"Delayed expression executed as it is the last remaning one")
+      print("  "*self.ctx.indent+"[I] Delayed expression executed as it is the last remaning one")
       result = self.exec(result,None)
     
     shorten = str(result) if len(str(result)) <= 40 else str(result)[:40]+"..."
-    print("  "*self.ctx.indent + "Result is: `"+shorten+"`")
+    print("  "*self.ctx.indent + "[I] Result is: `"+shorten+"`")
     self.ctx.indent -= 1
     return result
