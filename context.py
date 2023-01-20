@@ -14,6 +14,11 @@ class Context:
     self.vars = []
     self.temp_var = {}
 
+  def clean(self):
+    for k in [x for x in self.vars.keys()]:
+      if k.startswith(self.get_path()) and ".." in k[len(self.get_path()):]:
+        print("  "*self.indent+"[C] Removing block variable `"+k+"` (called from `"+str(self.get_path())+"`")
+        del self.vars[k]
 
   def append(self,folder):
     self.act_path.append(folder.strip())
@@ -75,7 +80,7 @@ class Context:
       if string == "INNER": # if we were searching for "inner" but no var was found : return expression was empty
         raise EmptyExpression from None
       else:
-        raise UnknowLitteral(0,"Unknow litteral or unknow thingy at `"+self.get_path()+"`")
+        raise UnknowLitteral(0,"Unknow litteral or unknow thingy at `"+self.get_path()+"`") from None
 
 
   def print(self,e=""):

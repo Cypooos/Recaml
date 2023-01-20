@@ -165,14 +165,15 @@ class Interpretor:
           if buffer != "":result = self.exec(result,self.ctx.get(buffer))
           buffer = ""
 
-          self.ctx.append("INNER")
+          self.ctx.append("")
           print("  "*self.ctx.indent,"[I] Executing block in ctx `"+self.ctx.get_path()+"`")
 
           place = find_next_brackets(string[i:],"{","}")
           if place != 0:
             self.parser.parse(string[i+1:i+place])
             self.ctx.back()
-            result = self.exec(result,self.ctx.get("INNER"))
+            result = self.exec(result,self.ctx.get("."))
+            self.ctx.clean() # clear all '..' variables defined from this scope
             i += place
           else:
             raise UnclosedBrackets()
@@ -229,7 +230,7 @@ class Interpretor:
             result = self.exec(result,fct)
             buffer = ""
             i += place
-            state = "normal"
+            state = Interpretor.STATE_NORMAL
           else:
             raise UnclosedBrackets
         else:

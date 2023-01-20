@@ -99,12 +99,15 @@ Tests {
   }
   Inter.context {
     simple {
-      test1 : \x{
+      test_fct : \x{
         a:add x 1;
-        b:mul x 2;
-        : add x 4440
+        b:mul a 2;
+        : add b 4440;
       };
-      test_4444 : test1 1;
+      test_fct_4444 : test_fct 1;
+      test_codeblock : \a(add {x : mul a 2; : add x x;} a);
+      test_codeblock_25 : test_codeblock 5;
+      test_codeblock_60 : test_codeblock 12;
     }
   }
 }
