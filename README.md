@@ -46,7 +46,7 @@ Variables can be overwrite
 
 By default, the process print the value of the empty key expression.
 
-## Default functions and type
+## Default functions and types
 
 Default types include :
  - `int` with function `add`, `mul`, `sub`, `div`, `mod` with aliases `+`, `*`, `-`, `/`, `%`
