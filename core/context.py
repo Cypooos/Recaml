@@ -7,12 +7,7 @@ class Context:
 
     self.indent = 0
     self.act_path = []
-
-    
-    # for debbugging purposes, those two function are defined here
-
-    self.vars = []
-    self.temp_var = {}
+    self.vars = {}
 
   def clean(self):
     for k in [x for x in self.vars.keys()]:

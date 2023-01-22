@@ -28,160 +28,88 @@ class Arr:
 DEFAULT_TYPES = [int,bool,Function,Process]
 
 def load_default(inter):
-  """
-  DEFAULT_VALS = {}
 
-  def to_default(aliases=[],use_def_name = True):
+  # this decorator curryfy a function, and add a type checker on the aguments, to make adding defaults very easy.
+  def to_default(aliases=[],use_def_name=True,force=True):
     def inner(fct):
+      fct.args = []
+      fct.annot = list(fct.__annotations__.values())
+      print("[D] Adding `"+str(fct.__name__)+"` to defaults")
+      print("[D] args are: "+str(fct.annot))
       def wrapper(a):
-        if isinstance(inter.force(a),fct.__annotations__[len(fct.args)-1]):
-          fct.args.append(a)
-          if len(fct.args) == len(fct.__annotations__)-1:
-            fct(fct.args)
+        if isinstance(inter.force(a),fct.annot[len(fct.args)]):
+          if force:fct.args.append(inter.force(a))
+          else:fct.args.append(a)
+          if len(fct.args) == len(fct.annot):
+            print("[D] Calling `"+str(fct.__name__)+"` with",fct.args)
+            ret = fct(*fct.args)
+            fct.args = [] # resseting the arguments
+            return ret
           else: return wrapper
         else:
-          raise WrongArgument("wrong argument type in default",inter.ctx.get_path())
+          raise WrongArgument("Wrong argument type in default",inter.ctx.get_path())
       for x in aliases:
-        DEFAULT_VALS[x] = wrapper
-      if use_def_name:DEFAULT_VALS[fct.__name__] = wrapper
+        inter.ctx.vars[x] = wrapper
+      if use_def_name:inter.ctx.vars[fct.__name__] = wrapper
     return inner
 
-
-
-  @to_default(aliases=["+"])
+  @to_default(["+"])
   def add(a:int,b:int):
-    return a + b 
-
-  @to_default(aliases=["-"])
+    return a + b
+  
+  @to_default(["-"])
   def sub(a:int,b:int):
-    return a - b 
+    return a - b
   
+  @to_default(["*"])
+  def mul(a:int,b:int):
+    return a * b
 
-
-  @to_default(aliases=["+"])
-  def eq(a:int,b:int):
-    return a + b 
-
-  @to_default(aliases=["-"])
-  def sub(a:int,b:int):
-    return a - b 
-  # __annotations__ == {'a': <class 'int'>, 'b': <class 'int'>, 'return': <class 'int'>}
-
-  """
-
-  def add(a,b):
-    a = inter.force(a)
-    b = inter.force(b)
-    if isinstance(a,int) and isinstance(b,int):
-      return a + b
-    else:
-      raise WrongArgument("Add a+b not with int,int",inter.ctx.get_path())
+  @to_default(["/"])
+  def div(a:int,b:int):
+    return a // b
   
-  def sub(a,b):
-    a = inter.force(a)
-    b = inter.force(b)
-    if isinstance(a,int) and isinstance(b,int):
-      return a - b
-    else:
-      raise WrongArgument("Add a-b not with int,int",inter.ctx.get_path())
-
-  def mul(a,b):
-    a = inter.force(a)
-    b = inter.force(b)
-    if isinstance(a,int) and isinstance(b,int):
-      return a * b
-    else:
-      raise WrongArgument("Add a*b not with int,int",inter.ctx.get_path())
+  @to_default(["%"])
+  def mod(a:int,b:int):
+    return a % b
   
-  def if_(cnd,a,b):
+  # don't force by default all arguments, otherwise all branch of a if statement would
+  # be calculated and stack overflow would occur in recursive function for example
+  @to_default(["if"],use_def_name=False,force=False) 
+  def if_(cnd:bool,a:object,b:object):
     cnd = inter.force(cnd)
     if isinstance(cnd,bool):
-      if cnd: return inter.force(a)
+      if cnd: return inter.force(a) # only force them once they are sure
       else: return inter.force(b)
     else:
       raise WrongArgument("If cnd a b not with bool, 'a, 'b",inter.ctx.get_path())
   
-  def eq(a,b):
-    a = inter.force(a)
-    b = inter.force(b)
-    if isinstance(a,int) and isinstance(b,int):
-      return a == b
-    elif isinstance(a,bool) and isinstance(b,bool):
+  @to_default(["="])
+  def eq(a:object,b:object):
+    if isinstance(a,b.__class__):
       return a == b
     else:
-      raise WrongArgument("a==b not with int,int nor bool,bool",inter.ctx.get_path())
+      raise WrongArgument("a==b not with the same type",inter.ctx.get_path())
   
-  def or_(a,b):
-    a = inter.force(a)
-    b = inter.force(b)
-    if isinstance(a,bool) and isinstance(b,bool):
-      return a or b
-    else:
-      raise WrongArgument("Or a b not with bool,bool",inter.ctx.get_path())
-    
-  def and_(a,b):
-    a = inter.force(a)
-    b = inter.force(b)
-    if isinstance(a,bool) and isinstance(b,bool):
-      return a and b
-    else:
-      raise WrongArgument("And a b not with bool,bool",inter.ctx.get_path())
+  @to_default(["or","||"],use_def_name=False)
+  def or_(a:bool,b:bool):
+    return a or b
   
-  def not_(a):
-    a = inter.force(a)
-    if isinstance(a,bool):
-      return a
-    else:
-      raise WrongArgument("(not a) not with bool",inter.ctx.get_path())
+  @to_default(["and","&&"],use_def_name=False)
+  def and_(a:bool,b:bool):
+    return a and b
   
-  def div_(a,b):
-    a = inter.force(a)
-    b = inter.force(b)
-    if isinstance(a,int) and isinstance(b,int):
-      return int(a / b)
-    else:
-      raise WrongArgument("div a b not with int,int",inter.ctx.get_path())
+  @to_default(["^^"])
+  def xor(a:bool,b:bool):
+    return a ^ b
   
-  def mod_(a,b):
-    a = inter.force(a)
-    b = inter.force(b)
-    if isinstance(a,int) and isinstance(b,int):
-      return a % b
-    else:
-      raise WrongArgument("mod a b not with int,int",inter.ctx.get_path())
+  @to_default(["not","!"],use_def_name=False)
+  def not_(a:bool):
+    return not a
   
-  
-
-  DEFAULT_VALS = {
-    "add":lambda a:lambda b: add(a,b),
-    "sub":lambda a:lambda b: sub(a,b),
-    "mul":lambda a:lambda b: mul(a,b),
-    "if":lambda cnd:lambda a:lambda b: if_(cnd,a,b),
-    "eq":lambda a:lambda b: eq(a,b),
-    "or":lambda a:lambda b: or_(a,b),
-    "and":lambda a:lambda b: and_(a,b),
-    "not":lambda a: not_(a),
-    "div":lambda a:lambda b: div_(a,b),
-    "mod":lambda a:lambda b: mod_(a,b),
-    "false":False,
+  for k,v in {
     "true":True,
-  }
-  # defaults function are lambda-defined
-  # Aliases for default functions
-  for k,v_ in [
-      ("==","eq"),
-      #(">=","ge"),
-      #(">","gt"),
-      #("<=","le"),
-      #("<","ls"),
-      ("&&","and"),
-      ("||","or"),
-      ("!","not"),
-      ("+","add"),
-      ("-","sub"),
-      ("/","div"),
-      ("%","mod"),
-      ("*","mul"),
-    ]:
-    DEFAULT_VALS[k] = DEFAULT_VALS[v_]
-  return DEFAULT_VALS
+    "false":False,
+  }.items():
+    inter.ctx.vars[k] = v
+  

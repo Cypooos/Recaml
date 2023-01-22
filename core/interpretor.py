@@ -29,7 +29,7 @@ class Interpretor:
   def __init__(self,ctx:Context,parser):
     self.ctx = ctx
     self.parser = parser
-    self.ctx.vars = load_default(self)
+    load_default(self)
   
   # exec(a,b) calculate a(b)
   def exec(self,res,val):
