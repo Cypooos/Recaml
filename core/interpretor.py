@@ -1,8 +1,8 @@
-from errors import *
-from context import Context
+from core.errors import *
+from core.context import Context
 #from parse import Parser
-from utils import find_next_brackets
-from defaults import *
+from core.utils import find_next_brackets
+from core.defaults import *
 
 class Interpretor:
 

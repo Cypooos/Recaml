@@ -1,13 +1,10 @@
 
-from random import randint
-
-
-from parse import Parser
+from core.parse import Parser
 
 # TESTS
 parsing = Parser()
 
-f = open("tests.jl","r")
+f = open("tests/set1.jl","r")
 ctnt = f.read()
 f.close()
 

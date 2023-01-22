@@ -1,5 +1,5 @@
-from errors import *
-from defaults import *
+from core.errors import *
+from core.defaults import *
 
 class Context:
 

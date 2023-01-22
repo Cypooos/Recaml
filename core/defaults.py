@@ -1,4 +1,4 @@
-from errors import *
+from core.errors import *
 
 class Function:
 

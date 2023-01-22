@@ -1,7 +1,7 @@
-from errors import *
-from context import Context
-from interpretor import Interpretor
-from utils import find_next_brackets
+from core.errors import *
+from core.context import Context
+from core.interpretor import Interpretor
+from core.utils import find_next_brackets
 #  
 #  nom= expression;;
 #  nom= expression;;
