@@ -1,7 +1,14 @@
+# uncomment a line to cause an error
+
 Tests.errors {
+    unknowLitteral {
+        # a : b 0;
+    }
     wrongType {
-        # error_1: or 3 true;
-        # error_2: add 3 false;
+        # error_1 : or 3 true;
+        # error_2 : add 3 false;
+        # error_3 : eq 6 true;
+        # error_4 : if 6 (6) (6);
     }
     trace {
         a : \n(add n 10);

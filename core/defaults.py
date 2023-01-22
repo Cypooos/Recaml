@@ -87,7 +87,7 @@ def load_default(inter):
     if isinstance(a,b.__class__):
       return a == b
     else:
-      raise WrongArgument("Wrong argument type for `eq a b` : a and b are not nof the same type",inter.ctx)
+      raise WrongArgument("Wrong argument type for `eq a b` : a and b are not of the same type",inter.ctx)
   
   @to_default(["or","||"],use_def_name=False)
   def or_(a:bool,b:bool):
