@@ -9,7 +9,7 @@ class Function:
     self.temp_var = temp_var
   
   def __str__(self):
-    return "Fct[\\"+self.variable+"("+self.code+"):"+str(self.temp_var)+" at `"+self.def_path+"`]"
+    return "Fct[\\"+self.variable+"("+self.code.replace("\n","\\\\")[:20]+"):"+str(self.temp_var)+" at `"+self.def_path+"`]"
   
 class Process:
   def __init__(self,code,temp_var,def_path):
@@ -17,7 +17,7 @@ class Process:
     self.def_path = def_path
     self.temp_var = temp_var
   def __str__(self):
-    return "Prcss['"+self.code+"':"+str(self.temp_var)+" at `"+self.def_path+"`]"
+    return "Prcss['"+self.code.replace("\n","\\\\")[:20]+"':"+str(self.temp_var)+" at `"+self.def_path+"`]"
   
 class Arr:
   def __init__(self,size):

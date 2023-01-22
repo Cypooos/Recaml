@@ -6,7 +6,7 @@ from core.defaults import *
 
 class Interpretor:
 
-  STACK_LIMIT = 20
+  STACK_LIMIT = 30
 
   STATE_NORMAL = 0
   STATE_LINK = 1
