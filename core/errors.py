@@ -1,26 +1,30 @@
-class ParsingError(Exception):
-  def __init__(self,line,msg):
-    self.line = line
+class RecamlError(Exception):
+  def __init__(self,msg,ctx):
     self.msg = msg
+    self.ctx = ctx
+    self.paths = [ctx.get_path()]
+  
+  def __str__(self) -> str:
+    if "".join(self.paths) == "":
+      txt = " at top level"
+    else:txt = "\nin :\n - "+"\n - ".join(self.paths)
+    return self.__class__.__name__+"\nAn error as occured:\n"+str(self.msg)+txt
 
-class InterpretorError(Exception):
-  def __init__(self,msg,path):
-    self.msg = msg
-    self.path = path
-
-
-class StackOverflow (InterpretorError):
+class StackOverflow (RecamlError):
   pass
 
-class UnknowLitteral (ParsingError):
+class UnknowLitteral (RecamlError):
   pass
 
-class UnclosedBrackets (ParsingError):
+class UnclosedBrackets (RecamlError):
   pass
 
-class WrongArgument (InterpretorError):
+class WrongArgument (RecamlError):
   pass
 
-class EmptyExpression (Exception):
+class EmptyExpression (RecamlError):
+  pass
+
+class PathError (RecamlError):
   pass
 

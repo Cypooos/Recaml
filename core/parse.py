@@ -67,7 +67,7 @@ class Parser:
             buffer += string[i:i+place+1]
             i += place
           else:
-            raise UnclosedBrackets(0,"unclosed Block code in `"+self.ctx.getpath()+"`")
+            raise UnclosedBrackets("Unclosed block code",self.ctx)
 
         elif char == ";":
           state = Parser.STATE_CLEF

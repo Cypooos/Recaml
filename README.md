@@ -54,7 +54,7 @@ Default types include :
 
 Default functions include :
  - `if a b c` with `a` a bool, `b` the value to resturn if `a` is `true`, and `c` otherwise
- - `eq a b` that returns true if `a` and `b` is the same value
+ - `eq a b` that returns true if `a` and `b` is the same value. They have to be of the same type.
  - `type_eq a b` that returns `true` if `a` and `b` are of the same type
 
 If `a b` failed for the reasons of a not being a function, the interpretor will try to execute `b a`.

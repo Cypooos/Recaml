@@ -32,7 +32,7 @@ class Interpretor:
     load_default(self)
   
   # exec(a,b) calculate a(b)
-  def exec(self,res,val):
+  def exec(self,res,val,reversed=False):
 
     print("  "*self.ctx.indent+"[I] Executing "+str(res)+"("+str(val)+")")
     
@@ -50,7 +50,11 @@ class Interpretor:
       to_del = []
       for (key,value) in res.temp_var:
         if isinstance(value,Process):
-          value = self.exec(value,None)
+          try:
+            value = self.exec(value,None)
+          except RecamlError as e:
+            e.paths.append(".".join(path_save))
+            raise e 
         to_del.append((key,self.ctx.get(key,True)))
         self.ctx.defi(key,value)
 
@@ -98,7 +102,11 @@ class Interpretor:
       self.ctx.defi(res.variable,val)
       print("  "*self.ctx.indent+"[I] Temporary variables: to_del =",to_del)
 
-      returned = self.evaluate(res.code)
+      try:
+        returned = self.evaluate(res.code)
+      except RecamlError as e:
+        e.paths.append(".".join(path_save))
+        raise e 
 
       if isinstance(returned,Function) or isinstance(returned,Process):
         for x in res.temp_var:
@@ -115,9 +123,13 @@ class Interpretor:
       self.ctx.goto(path_save)
       return returned
 
-    if isinstance(res,int) or isinstance(res,Arr):
-      raise WrongArgument("Evaluate arr or int with something, impossible",self.ctx.get_path())
-    
+    else:
+      if reversed:
+        raise WrongArgument("Impossible to evaluate `"+res.__class__.__name__+"` with `"+val.__class__.__name__+"`",self.ctx)
+      else:
+        print("  "*self.ctx.indent+"[I] Trying reverse execution")
+        return self.exec(val,res,True)
+
 
       
     
@@ -126,7 +138,7 @@ class Interpretor:
 
     self.ctx.indent += 1
     if self.ctx.indent >= Interpretor.STACK_LIMIT:
-      raise StackOverflow("AYAA",self.ctx.get_path())
+      raise StackOverflow("Too much recursion (limit is "+str(self.STACK_LIMIT)+")",self.ctx)
     
     result = lambda x:x
     buffer = ""
@@ -155,7 +167,7 @@ class Interpretor:
             result = self.exec(result,val)
             i += place
           else:
-            raise UnclosedBrackets(0,"In code () at `"+str(self.ctx.get_path())+"`")
+            raise UnclosedBrackets("Unclosed Brackets",self.ctx)
         
         elif char == "{":
           # TODO: check if it works
@@ -170,13 +182,18 @@ class Interpretor:
 
           place = find_next_brackets(string[i:],"{","}")
           if place != 0:
-            self.parser.parse(string[i+1:i+place])
+            try:
+              self.parser.parse(string[i+1:i+place])
+            except RecamlError as e:
+              self.ctx.back()
+              e.paths[-1] = self.ctx.get_path()
+              raise e 
             self.ctx.back()
             result = self.exec(result,self.ctx.get("."))
             self.ctx.clean() # clear all '..' variables defined from this scope
             i += place
           else:
-            raise UnclosedBrackets()
+            raise UnclosedBrackets("Unclosed Code Block",self.ctx)
 
         # end of current fetching and evaluation of result
         elif char == " " and buffer != "" :
@@ -219,7 +236,7 @@ class Interpretor:
             i += place
             state = Interpretor.STATE_NORMAL
           else:
-            raise UnclosedBrackets
+            raise UnclosedBrackets("Unclosed function opening brackets",self.ctx)
         elif char == "{":
           print("  "*self.ctx.indent + "[I] End of fetching variable for block:`"+buffer+"`")
 
@@ -232,7 +249,7 @@ class Interpretor:
             i += place
             state = Interpretor.STATE_NORMAL
           else:
-            raise UnclosedBrackets
+            raise UnclosedBrackets("Unclosed function opening code block",self.ctx)
         else:
           buffer += char
       i+=1

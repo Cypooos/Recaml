@@ -1,12 +1,17 @@
-
+from core.errors import RecamlError
 from core.parse import Parser
 
 # TESTS
 parsing = Parser()
 
-f = open("tests/defaults.jl","r")
+f = open("tests/errors.jl","r")
 ctnt = f.read()
 f.close()
 
-parsing.parse(ctnt)
-parsing.ctx.print()
+try:
+  parsing.parse(ctnt)
+except RecamlError as e:
+  print(e)
+
+else:
+  parsing.ctx.print()

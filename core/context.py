@@ -24,7 +24,10 @@ class Context:
     else: self.act_path = path
 
   def back(self):
-    self.act_path.pop()
+    try:
+      self.act_path.pop()
+    except IndexError:
+      raise UnclosedBrackets("Unclosed brackets",self)
   
   def get_path(self):
     return ".".join(self.act_path)
@@ -72,10 +75,10 @@ class Context:
       return a
     except ValueError:
         
-      if string == "INNER": # if we were searching for "inner" but no var was found : return expression was empty
-        raise EmptyExpression from None
+      if string == "": # if we were searching for "" but no var was found : return expression was empty
+        raise EmptyExpression("No definition of `"+self.get_path()+"`",self) from None
       else:
-        raise UnknowLitteral(0,"Unknow litteral or unknow thingy at `"+self.get_path()+"`") from None
+        raise UnknowLitteral("Unknow litteral or variable",self)
 
 
   def print(self,e=""):
