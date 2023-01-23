@@ -167,7 +167,7 @@ class Interpretor:
             result = self.exec(result,val)
             i += place
           else:
-            raise UnclosedBrackets("Unclosed Brackets",self.ctx)
+            raise UnclosedBrackets("Unclosed code parenthesis",self.ctx)
         
         elif char == "{":
           # TODO: check if it works
@@ -193,7 +193,7 @@ class Interpretor:
             self.ctx.clean() # clear all '..' variables defined from this scope
             i += place
           else:
-            raise UnclosedBrackets("Unclosed Code Block",self.ctx)
+            raise UnclosedBrackets("Unclosed code brackets",self.ctx)
 
         # end of current fetching and evaluation of result
         elif char == " " and buffer != "" :
@@ -236,7 +236,7 @@ class Interpretor:
             i += place
             state = Interpretor.STATE_NORMAL
           else:
-            raise UnclosedBrackets("Unclosed function opening brackets",self.ctx)
+            raise UnclosedBrackets("Unclosed function opening parenthesis",self.ctx)
         elif char == "{":
           print("  "*self.ctx.indent + "[I] End of fetching variable for block:`"+buffer+"`")
 
@@ -249,7 +249,7 @@ class Interpretor:
             i += place
             state = Interpretor.STATE_NORMAL
           else:
-            raise UnclosedBrackets("Unclosed function opening code block",self.ctx)
+            raise UnclosedBrackets("Unclosed function opening brackets",self.ctx)
         else:
           buffer += char
       i+=1

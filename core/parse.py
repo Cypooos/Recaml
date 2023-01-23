@@ -2,6 +2,7 @@ from core.errors import *
 from core.context import Context
 from core.interpretor import Interpretor
 from core.utils import find_next_brackets
+
 #  
 #  nom= expression;;
 #  nom= expression;;
@@ -79,7 +80,12 @@ class Parser:
           buffer = ""
           
         elif char == "}":
-          # TODO : do as ';' before
+          state = Parser.STATE_CLEF
+          print("  "*self.ctx.indent+"Creating key (last) at `"+self.ctx.get_path()+"`")
+          self.ctx.create(self.inter.evaluate(buffer+" "))
+
+          print("  "*self.ctx.indent+"last key created.")
+          self.ctx.back()
           self.ctx.back()
           buffer = ""
 
@@ -87,7 +93,7 @@ class Parser:
           state = Parser.STATE_VAL_C
         else:
           buffer += char
-      elif state == "valC":
+      elif state == Parser.STATE_VAL_C:
         if char == "#" or char == "\n": state = Parser.STATE_VAL
        
       i+= 1 

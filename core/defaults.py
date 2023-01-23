@@ -44,7 +44,6 @@ def load_default(inter):
         else:
           raise WrongArgument("Wrong argument type in `"+str(fct.__name__)+"`, argument n°"+str(len(args)+1)+" should be of type `"+str(fct.types[len(args)].__name__)+"` but `"+str(a.__class__.__name__)+"` was found",inter.ctx)
 
-
       for x in aliases:
         inter.ctx.vars[x] = new_fct
       if use_def_name:inter.ctx.vars[fct.__name__] = new_fct

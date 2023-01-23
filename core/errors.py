@@ -8,7 +8,7 @@ class RecamlError(Exception):
     if "".join(self.paths) == "":
       txt = " at top level"
     else:txt = "\nin :\n - "+"\n - ".join(self.paths)
-    return self.__class__.__name__+"\nAn error as occured:\n"+str(self.msg)+txt
+    return "\n\n -- "+self.__class__.__name__+" --\nAn error as occured:\n"+str(self.msg)+txt
 
 class StackOverflow (RecamlError):
   pass

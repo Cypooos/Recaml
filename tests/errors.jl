@@ -32,5 +32,7 @@ Tests.errors {
     }
     syntax {
         # test }
+        aa : 7;
+        comment : \n(add n 2 # );
     }
 }

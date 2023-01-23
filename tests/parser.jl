@@ -39,3 +39,11 @@ Tests.Parser.Scope2 {
   }
   res: add a.a. 3; # this a is Parser.Weird1.a.a. = 30
 }
+
+Tests.Parser.LastKey { # The last key doesn't need a ';'
+  test1 {
+    a:10;
+    b:20
+  }
+  test2:30
+}
