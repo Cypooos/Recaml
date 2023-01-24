@@ -25,6 +25,9 @@ class WrongArgument (RecamlError):
 class EmptyExpression (RecamlError):
   pass
 
+class NoValueExpression (RecamlError):
+  pass
+
 class PathError (RecamlError):
   pass
 

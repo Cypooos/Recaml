@@ -4,7 +4,7 @@ from core.parse import Parser
 # TESTS
 parsing = Parser()
 
-f = open("tests/defaults.jl","r")
+f = open("tests/parser.jl","r")
 ctnt = f.read()
 f.close()
 

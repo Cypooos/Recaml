@@ -30,6 +30,9 @@ Tests.errors {
         b : \n(a n);
         # error : a 0;
     }
+    no_value {
+        # v;
+    }
     syntax {
         # test }
         aa : 7;

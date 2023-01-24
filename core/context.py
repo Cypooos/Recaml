@@ -88,4 +88,6 @@ class Context:
   def print(self,e=""):
     for key,value in self.vars.items():
       if key.startswith(e):
-        print(key+":"+str(value))
+        if key.endswith("."):
+          print(key[:-1]+" : "+str(value))
+        else:print(key+" : "+str(value))

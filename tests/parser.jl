@@ -47,3 +47,12 @@ Tests.Parser.LastKey { # The last key doesn't need a ';'
   }
   test2:30
 }
+
+
+Tests.Parser.EmptyKey { # Setting the empty key `:value` will give a value to the category
+  test1 {
+    a : 1000;
+    : add a 111 
+  }
+  : test1
+}

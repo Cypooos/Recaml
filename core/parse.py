@@ -54,6 +54,8 @@ class Parser:
           buffer = ""
         elif char == "#":
           state=Parser.STATE_CLEF_C
+        elif char == ";":
+          raise NoValueExpression("Expression is of the form `key;` instead of either `key {...};` or `key:value;`",self.ctx)
         else:
           buffer+=char
       
