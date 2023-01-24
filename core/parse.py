@@ -81,7 +81,7 @@ class Parser:
           
         elif char == "}":
           state = Parser.STATE_CLEF
-          print("  "*self.ctx.indent+"Creating key (last) at `"+self.ctx.get_path()+"`")
+          print("  "*self.ctx.indent+"Creating last key at `"+self.ctx.get_path()+"`")
           self.ctx.create(self.inter.evaluate(buffer+" "))
 
           print("  "*self.ctx.indent+"last key created.")
@@ -97,5 +97,13 @@ class Parser:
         if char == "#" or char == "\n": state = Parser.STATE_VAL
        
       i+= 1 
-    print(vars)
+  
+    if state == Parser.STATE_VAL:
+      state = Parser.STATE_CLEF
+      print("  "*self.ctx.indent+"Creating last key at `"+self.ctx.get_path()+"`")
+      self.ctx.create(self.inter.evaluate(buffer+" "))
+        
+      print("  "*self.ctx.indent+"Key created. Path is now `"+str(self.ctx.get_path())+"`")
+      self.ctx.back()
+      buffer = ""
 

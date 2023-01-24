@@ -1,3 +1,4 @@
+from random import randint
 from core.errors import *
 from core.context import Context
 #from parse import Parser
@@ -20,10 +21,31 @@ class Interpretor:
   }
 
 
-  # default function use it to force a Process to be unwrapped
+  # default function use it to force a Process / Codeblock to be unwrapped.
+  # Codeblocks are only unwrapped with a default. 
   def force(self,x):
+    
     if isinstance(x, Process):
       return self.force(self.exec(x,None))
+
+    if isinstance(x, CodeBlock):
+      s = "."*self.ctx.recursive_counter
+      self.ctx.recursive_counter += 1 # to avoid overwriting variables, we make sure to be in a new scope
+      self.ctx.append(s)
+      
+      print("  "*self.ctx.indent+"[I] Executing code block in ctx `"+self.ctx.get_path()+"`")
+      try:
+        self.parser.parse(x.code)
+      except RecamlError as e:
+        self.ctx.back()
+        e.paths[-1] = self.ctx.get_path()
+        raise e 
+      self.ctx.back()
+      returned = self.ctx.get(s+".")
+      self.ctx.clean() # clear all '..' variables defined from this scope
+      self.ctx.recursive_counter -= 1
+      return self.force(returned)
+
     else: return x
 
   def __init__(self,ctx:Context,parser):
@@ -170,27 +192,15 @@ class Interpretor:
             raise UnclosedBrackets("Unclosed code parenthesis",self.ctx)
         
         elif char == "{":
-          # TODO: check if it works
-          
           # evaluate the buffer
           buffer = buffer.strip()
           if buffer != "":result = self.exec(result,self.ctx.get(buffer))
           buffer = ""
 
-          self.ctx.append("")
-          print("  "*self.ctx.indent,"[I] Executing block in ctx `"+self.ctx.get_path()+"`")
-
           place = find_next_brackets(string[i:],"{","}")
           if place != 0:
-            try:
-              self.parser.parse(string[i+1:i+place])
-            except RecamlError as e:
-              self.ctx.back()
-              e.paths[-1] = self.ctx.get_path()
-              raise e 
-            self.ctx.back()
-            result = self.exec(result,self.ctx.get("."))
-            self.ctx.clean() # clear all '..' variables defined from this scope
+            val = CodeBlock(string[i+1:i+place],[],self.ctx.get_path())
+            result = self.exec(result,val)
             i += place
           else:
             raise UnclosedBrackets("Unclosed code brackets",self.ctx)
@@ -260,10 +270,10 @@ class Interpretor:
     if buffer != "":result = self.exec(result,self.ctx.get(buffer))
     buffer = ""
 
-    # if only Process is left, executing it.
-    while isinstance(result,Process):
+    while isinstance(result,Process) or isinstance(result,CodeBlock):
       print("  "*self.ctx.indent+"[I] Delayed expression executed as it is the last remaning one")
-      result = self.exec(result,None)
+      result = self.force(result)
+    
     
     shorten = str(result) if len(str(result)) <= 40 else str(result)[:40]+"..."
     print("  "*self.ctx.indent + "[I] Result is: `"+shorten+"`")

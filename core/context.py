@@ -6,12 +6,13 @@ class Context:
   def __init__(self):
 
     self.indent = 0
+    self.recursive_counter = 0 # count the number of blocks call within blocks calls
     self.act_path = []
     self.vars = {}
 
   def clean(self):
     for k in [x for x in self.vars.keys()]:
-      if k.startswith(self.get_path()) and ".." in k[len(self.get_path()):]:
+      if k.startswith(self.get_path()+self.recursive_counter*"."+"."):
         print("  "*self.indent+"[C] Removing block variable `"+k+"` (called from `"+str(self.get_path())+"`")
         del self.vars[k]
 
@@ -47,7 +48,6 @@ class Context:
       if self.get_path() == "":del self.vars[name]
       else: del self.vars[self.get_path()+"."+name]
     except KeyError: pass
-
 
   def get(self,string,no_err=False):
     

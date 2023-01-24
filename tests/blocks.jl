@@ -43,4 +43,16 @@ Tests.Inter.Blocks {
     test_24 : fct 2 4; # result is 16
     test_34 : fct 3 4; # result is 81
   }
+
+  double_rec {
+    a : \n{
+      res : b (sub n 1) ;
+      : add res 1;
+    };
+    b : \n{
+      res : if (eq n 0) (10) (a n);
+      : add res 1;
+    };
+    result : a 3;
+  }
 }

@@ -18,7 +18,18 @@ class Process:
     self.temp_var = temp_var
   def __str__(self):
     return "Prcss['"+self.code.replace("\n","\\\\")[:20]+"':"+str(self.temp_var)+" at `"+self.def_path+"`]"
-  
+
+class CodeBlock:
+  def __init__(self,code,temp_var,def_path):
+    self.code = code
+    self.def_path = def_path
+    self.temp_var = temp_var
+
+  def __str__(self):
+    return "CodeBlck['"+self.code.replace("\n","\\\\")[:20]+"':"+str(self.temp_var)+"]"
+
+
+
 class Arr:
   def __init__(self,size):
     self.size = size
