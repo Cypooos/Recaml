@@ -37,7 +37,7 @@ Tests.Parser.Scope2 {
   a.a {
     res10 : add b 1; # this b is Parser.Weird1.a.b = 10, so the result is 11
   }
-  res: add a.a. 3; # this a is Parser.Weird1.a.a. = 30
+  res: add a.a 3; # this a is Parser.Weird1.a.a. = 30
 }
 
 Tests.Parser.LastKey { # The last key doesn't need a ';'

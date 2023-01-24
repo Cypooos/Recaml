@@ -59,12 +59,16 @@ class Context:
     for x in self.get_path().split("."):
       search_paths.append(search_paths[-1]+x+".")
     search_paths = search_paths[::-1]
-
+    
     for path in search_paths:
       if path+string in self.vars.keys():
         print("  "*self.indent+"[C] Found",path+string,":",self.vars[path+string])
 
         return self.vars[path+string]
+      elif path+string+"." in self.vars.keys():
+        print("  "*self.indent+"[C] Found",path+string,":",self.vars[path+string+"."])
+
+        return self.vars[path+string+"."]
     
     if no_err:
       print("  "*self.indent+"[C] Not found, returning None as no_err is set")
