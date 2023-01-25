@@ -1,5 +1,5 @@
 
-Test.Inter.Functions {
+Tests.Inter.Functions {
 
   # test for multiple arguments functions
   multiple_arg {
@@ -12,7 +12,7 @@ Test.Inter.Functions {
 
     argument_order:\a(\b(\a(\b(add a b)))) 99 99 1 10;
     argument_order2:\a(\b(\a(\b(add a b))));
-    argument_order2_test:\z(\y(\x(\x(argument_order2 x x y z)))) 10 1 -1000 99;; 
+    argument_order2_test:\z(\y(\x(\x(argument_order2 x x y z)))) 10 1 -1000 99; 
   }
 
   # the constant function

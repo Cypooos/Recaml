@@ -56,3 +56,12 @@ Tests.Parser.EmptyKey { # Setting the empty key `:value` will give a value to th
   }
   : test1
 }
+
+tests.Parser.EmptyExpression { # for randomly placed ";"
+  ;test1 {
+    ;; ;   ; a : 10;  ;    
+    ;
+
+    ;
+  };;
+}

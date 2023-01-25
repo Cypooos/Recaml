@@ -24,8 +24,9 @@ class Parser:
 
   STACK_LIMIT = 30 # t_lim = 333
 
-  def __init__(self):
+  def __init__(self,is_debug=False):
     self.ctx = Context()
+    if is_debug: self.ctx.log_level = self.ctx.log_level | Context.LOG_DEBUG_PRINT
     self.inter = Interpretor(self.ctx,self)
 
   def parse(self,string):
@@ -34,7 +35,6 @@ class Parser:
     state = Parser.STATE_CLEF
     i = 0
     buffer = ""
-    line = 0 # TODO
 
     while i <len(string):
       char = string[i]
@@ -55,7 +55,7 @@ class Parser:
         elif char == "#":
           state=Parser.STATE_CLEF_C
         elif char == ";":
-          raise NoValueExpression("Expression is of the form `key;` instead of either `key {...};` or `key:value;`",self.ctx)
+          if buffer.strip() != "":raise NoValueExpression("Expression is of the form `key;` instead of either `key {...};` or `key:value;`",self.ctx)
         else:
           buffer+=char
       
@@ -74,19 +74,19 @@ class Parser:
 
         elif char == ";":
           state = Parser.STATE_CLEF
-          print("  "*self.ctx.indent+"Creating key at `"+self.ctx.get_path()+"`")
+          self.inter.ctx.debug("[P] Creating key at `"+self.ctx.get_path()+"`")
           self.ctx.create(self.inter.evaluate(buffer+" "))
 
-          print("  "*self.ctx.indent+"Key created.")
+          self.inter.ctx.debug("[P] Key created.")
           self.ctx.back()
           buffer = ""
           
         elif char == "}":
           state = Parser.STATE_CLEF
-          print("  "*self.ctx.indent+"Creating last key at `"+self.ctx.get_path()+"`")
+          self.inter.ctx.debug("[P] Creating last key of block at `"+self.ctx.get_path()+"`")
           self.ctx.create(self.inter.evaluate(buffer+" "))
 
-          print("  "*self.ctx.indent+"last key created.")
+          self.inter.ctx.debug("[P] Last block key created.")
           self.ctx.back()
           self.ctx.back()
           buffer = ""
@@ -102,10 +102,10 @@ class Parser:
   
     if state == Parser.STATE_VAL:
       state = Parser.STATE_CLEF
-      print("  "*self.ctx.indent+"Creating last key at `"+self.ctx.get_path()+"`")
+      self.inter.ctx.debug("[P] Creating last key at `"+self.ctx.get_path()+"`")
       self.ctx.create(self.inter.evaluate(buffer+" "))
         
-      print("  "*self.ctx.indent+"Key created. Path is now `"+str(self.ctx.get_path())+"`")
+      self.inter.ctx.debug("[P] lastKey created. Path is now `"+str(self.ctx.get_path())+"`")
       self.ctx.back()
       buffer = ""
 
