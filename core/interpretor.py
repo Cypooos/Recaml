@@ -33,7 +33,7 @@ class Interpretor:
       self.ctx.recursive_counter += 1 # to avoid overwriting variables, we make sure to be in a new scope
       self.ctx.append(s)
       
-      self.ctx.debug("[I] Executing code block in ctx `"+self.ctx.get_path()+"`")
+      print("  "*self.ctx.indent+"[I] Executing code block in ctx `"+self.ctx.get_path()+"`")
       try:
         self.parser.parse(x.code)
       except RecamlError as e:
@@ -56,7 +56,7 @@ class Interpretor:
   # exec(a,b) calculate a(b)
   def exec(self,res,val,reversed=False):
 
-    self.ctx.debug("[I] Executing "+str(res)+"("+str(val)+")")
+    print("  "*self.ctx.indent+"[I] Executing "+str(res)+"("+str(val)+")")
     
     if callable(res):
       return res(val)
@@ -68,7 +68,7 @@ class Interpretor:
       self.ctx.goto(res.def_path)
 
       # on créé les variables temporaire de contexte nécéssaire :
-      self.ctx.debug("[I] Creating temporary variables (Process)")
+      print("  "*self.ctx.indent+"[I] Creating temporary variables (Process)")
       to_del = []
       for (key,value) in res.temp_var:
         if isinstance(value,Process):
@@ -104,7 +104,7 @@ class Interpretor:
       # Otherwise, fact (sub a 1) will load fact witch will load fact... without calculating (sub a 1) since it's a Process
       # Also known as in (a + c()), we calculate the c() before calculating a + result
       while isinstance(val,Process):
-        self.ctx.debug("[I] Function Called with Process, calculating process.")
+        print("  "*self.ctx.indent+"[I] Function Called with Process, calculating process.")
         val = self.exec(val,None)
 
       # On ce met dans le contexte de définition de la fonction pour l'executer
@@ -112,7 +112,7 @@ class Interpretor:
       self.ctx.goto(res.def_path)
 
       # on créé les variables temporaire de contexte nécéssaire :
-      self.ctx.debug("[I] Creating temporary variables (Function)")
+      print("  "*self.ctx.indent+"[I] Creating temporary variables (Function)")
       to_del = []
       for (key,value) in res.temp_var:
         if isinstance(value,Process):
@@ -122,7 +122,7 @@ class Interpretor:
       for (key,value) in res.temp_var:
         self.ctx.defi(key,value)
       self.ctx.defi(res.variable,val)
-      self.ctx.debug("[I] Temporary variables: to_del =",to_del)
+      print("  "*self.ctx.indent+"[I] Temporary variables: to_del =",to_del)
 
       try:
         returned = self.evaluate(res.code)
@@ -149,7 +149,7 @@ class Interpretor:
       if reversed:
         raise WrongArgument("Impossible to evaluate `"+res.__class__.__name__+"` with `"+val.__class__.__name__+"`",self.ctx)
       else:
-        self.ctx.debug("[I] Trying reverse execution")
+        print("  "*self.ctx.indent+"[I] Trying reverse execution")
         return self.exec(val,res,True)
 
 
@@ -215,7 +215,7 @@ class Interpretor:
         
         # beginning of creating a fonction, also an end of the current fetching 
         elif char == Interpretor.SPECIAL["FUNCTION_DEF"]:
-          self.ctx.debug("[I] Fetching linkable variables...")
+          print("  "*self.ctx.indent + "[I] Fetching linkable variables...")
           
           # evaluate the buffer
           buffer = buffer.strip()
@@ -235,11 +235,11 @@ class Interpretor:
 
         # end of the fetching for the variable's name
         if char == "(":
-          self.ctx.debug("[I] End of fetching variable for fct:`"+buffer+"`")
+          print("  "*self.ctx.indent + "[I] End of fetching variable for fct:`"+buffer+"`")
 
           place = find_next_brackets(string[i:],"(",")")
           if place != 0:
-            self.ctx.debug("[I] Applying custom fct to result (execute)")
+            print("  "*self.ctx.indent + "[I] Applying custom fct to result (execute)")
             fct = Function(buffer,string[i+1:i+place],[],self.ctx.get_path())
             result = self.exec(result,fct)
             buffer = ""
@@ -248,11 +248,11 @@ class Interpretor:
           else:
             raise UnclosedBrackets("Unclosed function opening parenthesis",self.ctx)
         elif char == "{":
-          self.ctx.debug("[I] End of fetching variable for block:`"+buffer+"`")
+          print("  "*self.ctx.indent + "[I] End of fetching variable for block:`"+buffer+"`")
 
           place = find_next_brackets(string[i:],"{","}")
           if place != 0:
-            self.ctx.debug("[I] Applying custom fct to result (execute)")
+            print("  "*self.ctx.indent + "[I] Applying custom fct to result (execute)")
             fct = Function(buffer,string[i:i+place+1],[],self.ctx.get_path())
             result = self.exec(result,fct)
             buffer = ""
@@ -271,11 +271,11 @@ class Interpretor:
     buffer = ""
 
     while isinstance(result,Process) or isinstance(result,CodeBlock):
-      self.ctx.debug("[I] Delayed expression executed as it is the last remaning one")
+      print("  "*self.ctx.indent+"[I] Delayed expression executed as it is the last remaning one")
       result = self.force(result)
     
     
     shorten = str(result) if len(str(result)) <= 40 else str(result)[:40]+"..."
-    self.ctx.debug("[I] Result is: `"+shorten+"`")
+    print("  "*self.ctx.indent + "[I] Result is: `"+shorten+"`")
     self.ctx.indent -= 1
     return result
